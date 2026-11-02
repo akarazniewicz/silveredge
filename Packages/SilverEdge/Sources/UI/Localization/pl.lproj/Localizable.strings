@@ -1,0 +1,113 @@
+/* CPU panel: card titles and rows. */
+"cpu.title" = "CPU";
+"cpu.user" = "Użytkownik";
+"cpu.system" = "System";
+"cpu.cores" = "Rdzenie";
+"cpu.load" = "Obciążenie i temperatura";
+"cpu.gpu" = "GPU";
+"cpu.processes" = "Najaktywniejsze procesy";
+
+/* RAM panel: card titles and rows. */
+"memory.title" = "Pamięć";
+"memory.breakdown" = "Podział";
+"memory.swap" = "Swap i kompresja";
+"memory.processes" = "Najaktywniejsze procesy";
+
+/* Memory pressure levels. */
+"pressure.normal" = "Normalne";
+"pressure.warning" = "Podwyższone";
+"pressure.critical" = "Krytyczne";
+
+/* Panel footer buttons (tooltips and VoiceOver). */
+"footer.activityMonitor" = "Otwórz Monitor aktywności";
+"footer.quit" = "Zakończ SilverEdge";
+
+/* Memory used of total, in gigabytes: "35,3 / 48 GB". */
+"format.gigabytesOf" = "%@ / %@ GB";
+
+/* Thermal pressure levels, as macOS names them. */
+"thermal.nominal" = "Nominalne";
+"thermal.moderate" = "Umiarkowane";
+"thermal.heavy" = "Wysokie";
+"thermal.trapping" = "Bardzo wysokie";
+"thermal.sleeping" = "Krytyczne";
+
+/* Core groups on Apple silicon. */
+"cores.performance" = "Wydajne";
+"cores.efficiency" = "Energooszczędne";
+"cores.all" = "Wszystkie rdzenie";
+
+/* Load & Thermal card. */
+"load.thermal" = "Stan termiczny";
+"load.lowPower" = "Niski pobór";
+"load.oneMinute" = "1 min";
+"load.fiveMinutes" = "5 min";
+"load.fifteenMinutes" = "15 min";
+"load.average" = "Średnie obciążenie";
+"load.uptime" = "Czas pracy";
+
+/* GPU card. */
+"gpu.memory" = "Pamięć";
+
+/* Sizes and rates. */
+"format.gigabytes" = "%@ GB";
+"format.perSecond" = "%@/s";
+"format.ratio" = "%@×";
+
+/* Memory breakdown parts, as Activity Monitor names them. */
+"breakdown.app" = "Aplikacje";
+"breakdown.wired" = "Związana";
+"breakdown.compressed" = "Skompresowana";
+"breakdown.cached" = "Podręczna";
+"breakdown.free" = "Wolna";
+
+/* Swap & Paging tiles. */
+"swap.used" = "Użyty swap";
+"swap.compression" = "Kompresja";
+"swap.in" = "Do RAM";
+"swap.out" = "Na dysk";
+
+/* Energy card. */
+"energy.title" = "Energia";
+"energy.draw" = "Pobór";
+"energy.charging" = "Ładowanie";
+"energy.health" = "Kondycja";
+"energy.cycles" = "Cykle: %lld";
+"energy.toFull" = "Ładowanie · %@ do pełna";
+"energy.chargingState" = "Ładowanie";
+"energy.full" = "W pełni naładowana";
+"energy.pluggedWatts" = "Zasilacz · %lld W";
+"energy.plugged" = "Zasilacz";
+"energy.left" = "Bateria · zostało %@";
+"energy.onBattery" = "Na baterii";
+"format.watts" = "%@ W";
+"format.celsius" = "%lld °C";
+
+/* Top Processes switch: rank by CPU per process, or Energy Impact per app. */
+"cpu.listMode" = "Sortuj według";
+"cpu.listMode.cpu" = "CPU";
+"cpu.listMode.energy" = "Energia";
+"energy.impactHelp" = "Wpływ na energię %@";
+"format.wattsInteger" = "%lld W";
+
+/* Fans row (Load & Thermal). */
+"load.fans" = "Wentylatory";
+"fans.off" = "Wyłączone";
+"fans.detail" = "Wentylator %lld: %@ (%@–%@)";
+"format.rpm" = "%@ obr./min";
+
+/* RAM panel: header secondaries, pressure card, swap card, graph axes. */
+"memory.available" = "Dostępna";
+"memory.availableHelp" = "Pliki podręczne i wolna pamięć: to, co aplikacje dostaną bez użycia swapu.";
+"memory.peak" = "Szczyt";
+"memory.peakHelp" = "Najwięcej użytej pamięci od uruchomienia SilverEdge.";
+"memory.pressureTitle" = "Obciążenie pamięci";
+"swap.compressionHelp" = "Ile pamięci trzyma kompresor w stosunku do miejsca, które zajmuje.";
+"swap.scale" = "Skala %@";
+"axis.hour" = "60 min";
+"axis.now" = "teraz";
+
+/* A process row that counts several system processes macOS doesn't let SilverEdge read one by one. */
+"process.group" = "%@ + %lld";
+"process.groupHelp" = "Razem z %lld procesami systemowymi, których macOS nie pozwala odczytać osobno.";
+"process.loading" = "Wczytywanie procesów";

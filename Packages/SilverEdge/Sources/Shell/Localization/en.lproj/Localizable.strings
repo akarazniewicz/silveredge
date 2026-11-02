@@ -1,0 +1,23 @@
+/* Menu-bar captions: short, uppercase, like the system's own monitors. */
+"menuBar.cpu" = "CPU";
+"menuBar.memory" = "RAM";
+
+/* VoiceOver for a menu-bar item: the caption and its percentage. */
+"menuBar.accessibility.value" = "%@ %lld percent";
+"menuBar.accessibility.pressureWarning" = "%@, memory pressure elevated";
+"menuBar.accessibility.pressureCritical" = "%@, memory pressure critical";
+
+/* Status item menu. */
+"menu.openActivityMonitor" = "Open Activity Monitor";
+"menu.quit" = "Quit SilverEdge";
+"menuBar.accessibility.thermalWarning" = "%@, CPU throttled by heat";
+"menuBar.accessibility.thermalCritical" = "%@, CPU heavily throttled by heat";
+
+/* Theme submenu: the panel themes, names as in DayEdge. */
+"menu.theme" = "Theme";
+"theme.frost" = "Frost";
+"theme.system" = "System";
+"theme.opal" = "Opal";
+"theme.graphitePro" = "Graphite Pro";
+"theme.oneDarkPro" = "One Dark Pro";
+"theme.quartzPro" = "Quartz Pro";

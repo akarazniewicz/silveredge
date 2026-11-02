@@ -1,0 +1,28 @@
+#!/bin/bash
+# The frameworks each Packages/SilverEdge target may import — what Package.swift's
+# target dependencies can't say. `make lint` runs it; prints each offending
+# import and fails if there is one.
+set -euo pipefail
+cd "$(dirname "$0")/../Packages/SilverEdge/Sources"
+
+status=0
+
+# allow <target> <allowed module>... : any other import in the target fails.
+allow() {
+    local target=$1; shift
+    local pattern
+    pattern=":[0-9]+:(@testable )?import ($(IFS='|'; echo "$*"))$"
+    while IFS= read -r line; do
+        echo "$target may not: $line"
+        status=1
+    done < <(grep -rnE '^(@testable )?import ' "$target" --include='*.swift' | grep -vE "$pattern" || true)
+}
+
+# Values and pure logic: no UI, no system readers.
+allow Domain Foundation Observation
+# The kernel, IOKit and process readers behind the sampler: no UI.
+allow Platform Foundation Darwin Dispatch IOKit os notify Domain
+# What the menu bar and panels draw with: never Platform.
+allow UI Foundation SwiftUI AppKit Domain
+
+exit $status
