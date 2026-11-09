@@ -1,7 +1,6 @@
 import SwiftUI
 import Domain
 
-/// The CPU item's panel.
 package struct CPUPanelView: View {
     @Environment(\.panelPalette) private var palette
     let stats: LiveStats
@@ -12,7 +11,6 @@ package struct CPUPanelView: View {
         self.actions = actions
     }
 
-    /// CPU per process, or Energy Impact per app.
     private var listSwitch: some View {
         Picker(L10n.tr("cpu.listMode", "Rank by"), selection: Binding(get: { stats.cpuListMetric }, set: actions.setCPUListMetric)) {
             Text(L10n.tr("cpu.listMode.cpu", "CPU")).tag(ProcessMetric.cpu)
@@ -27,7 +25,6 @@ package struct CPUPanelView: View {
     package var body: some View {
         let cpu = stats.sample?.cpu ?? .zero
         let details = stats.sample?.details
-        // The Low Power pill goes on the Energy card, or on Load & Thermal when there's no battery.
         let battery = details?.battery
         PanelContainer(actions: actions, tab: ActivityMonitorTab(stats.cpuListMetric)) {
             PanelCard(title: L10n.tr("cpu.title", "CPU"), symbol: "cpu", trailing: PanelFormat.percent(cpu.total)) {

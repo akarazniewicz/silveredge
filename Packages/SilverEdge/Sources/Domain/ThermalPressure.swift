@@ -1,5 +1,3 @@
-/// The system's thermal pressure (`com.apple.system.thermalpressurelevel`): how hard
-/// macOS is holding the CPU back to stay cool. The CPU side of memory pressure.
 package enum ThermalPressure: Int, Equatable, Sendable {
     case nominal
     case moderate
@@ -14,7 +12,6 @@ package enum ThermalPressure: Int, Equatable, Sendable {
 }
 
 extension ThermalPressure {
-    /// Hidden at nominal, yellow while mildly throttled, red beyond.
     package var indicator: MenuBarReading.Indicator? {
         switch self {
         case .nominal: nil

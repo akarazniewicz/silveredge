@@ -1,7 +1,6 @@
 import Dispatch
 import Domain
 
-/// Memory pressure, pushed by the kernel — never polled.
 @MainActor
 package final class PressureMonitor {
     package private(set) var level = SystemReaders.memoryPressure()

@@ -1,10 +1,8 @@
 import SwiftUI
 
-/// A few short segments, lit up to the current level in its colour: memory and thermal pressure.
 struct LevelGauge: View {
     @Environment(\.panelPalette) private var palette
     let steps: Int
-    /// How many segments are lit, 1…steps.
     let lit: Int
     let color: Color
     var segmentWidth = PanelTheme.gaugeSegmentWidth

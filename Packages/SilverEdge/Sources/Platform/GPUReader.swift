@@ -2,7 +2,6 @@ import Foundation
 import IOKit
 import Domain
 
-/// The GPU's own statistics from its IOAccelerator registry entry. Only while the CPU panel is open.
 package enum GPUReader {
     package static func read() -> GPUStats? {
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOAccelerator"))

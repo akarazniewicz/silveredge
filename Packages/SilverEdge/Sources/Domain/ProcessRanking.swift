@@ -1,8 +1,6 @@
-/// One process as `ProcessProbe` reads it.
 package struct ProcessReading: Equatable, Sendable {
     package var pid: Int32
     package var coalition: UInt64
-    /// Nil when this app may not read the process (root and other users' processes).
     package var value: Double?
 
     package init(pid: Int32, coalition: UInt64, value: Double?) {
@@ -13,11 +11,8 @@ package struct ProcessReading: Equatable, Sendable {
 }
 
 package enum ProcessRanking {
-    /// The `limit` highest rows, highest first. Readable processes are rows of their own. Unreadable ones are
-    /// counted through their coalition: its total less what its readable members account for — exact for a
-    /// process alone in its coalition (most daemons), one row named after the lowest pid with a count when
-    /// several unreadable ones share it (WindowServer and its shader compiler). Names are left empty: only the
-    /// rows kept need them.
+    /// Unreadable processes are counted as their coalition's total less its readable members: exact when
+    /// alone in it (most daemons), else one row "<lowest pid> + n" (WindowServer and its shader compiler).
     package static func rows(_ readings: [ProcessReading], coalitionTotal: (UInt64) -> Double?, limit: Int) -> [ProcessUsage] {
         var rows: [ProcessUsage] = []
         var readableTotals: [UInt64: Double] = [:]

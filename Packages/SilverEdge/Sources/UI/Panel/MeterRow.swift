@@ -1,11 +1,9 @@
 import SwiftUI
 import Domain
 
-/// Label, value, and a thin bar: the panels' basic row.
 struct MeterRow: View {
     let label: String
     let value: String
-    /// 0…1; nil hides the bar.
     var fraction: Double?
     var tint: Color?
 
@@ -22,7 +20,6 @@ struct MeterRow: View {
     }
 }
 
-/// A capsule track filled to `fraction`; `width` nil fills the space it's given.
 struct Meter: View {
     @Environment(\.panelPalette) private var palette
     let fraction: Double
@@ -36,7 +33,6 @@ struct Meter: View {
                 GeometryReader { proxy in
                     Capsule()
                         .fill(tint ?? palette.accent)
-                        // At least a dot, so a near-zero value still shows where it is.
                         .frame(width: max(PanelTheme.meterHeight, proxy.size.width * fraction.clampedToUnit))
                 }
             }

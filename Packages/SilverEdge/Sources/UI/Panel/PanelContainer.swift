@@ -1,11 +1,9 @@
 import SwiftUI
 import Domain
 
-/// What the panels can ask for; the shell supplies it.
 package struct PanelActions {
     package var openActivityMonitor: (ActivityMonitorTab) -> Void
     package var quit: () -> Void
-    /// The CPU panel's list switch: `.cpu` or `.energy`.
     package var setCPUListMetric: (ProcessMetric) -> Void
 
     package init(openActivityMonitor: @escaping (ActivityMonitorTab) -> Void, quit: @escaping () -> Void,
@@ -16,11 +14,9 @@ package struct PanelActions {
     }
 }
 
-/// The cards stacked at the panel's width, the footer under them.
 struct PanelContainer<Cards: View>: View {
     @Environment(\.panelPalette) private var palette
     let actions: PanelActions
-    /// The tab the footer's Activity Monitor button opens.
     let tab: ActivityMonitorTab
     @ViewBuilder let cards: Cards
 

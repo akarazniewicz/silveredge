@@ -4,7 +4,6 @@ package enum ActivityMonitorTab: Int, Sendable {
     case memory = 1
     case energy = 2
 
-    /// The tab that shows what a list ranks by.
     package init(_ metric: ProcessMetric) {
         switch metric {
         case .cpu: self = .cpu

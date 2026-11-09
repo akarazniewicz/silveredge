@@ -1,8 +1,6 @@
 import SwiftUI
 import Domain
 
-/// Physical memory as one stacked bar, then each part: its name, and a bar against physical memory with its size —
-/// the parts don't overlap and add up to physical memory.
 struct MemoryBreakdown: View {
     @Environment(\.panelPalette) private var palette
     let memory: MemoryStats?
@@ -43,7 +41,6 @@ struct MemoryBreakdown: View {
         .accessibilityHidden(true)
     }
 
-    /// Name on its own line, so it's never cut; the bar and size under it.
     private func part(_ part: MemoryPart) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {

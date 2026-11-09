@@ -1,11 +1,9 @@
 import SwiftUI
 import Domain
 
-/// Thermal pressure as a level gauge, the three load averages as tiles, uptime in the header.
 struct LoadThermalCard: View {
     @Environment(\.panelPalette) private var palette
     let thermal: ThermalPressure
-    /// The Low Power pill, when the Energy card isn't there to carry it.
     let showsLowPower: Bool
     let details: CPUDetails?
 
@@ -38,7 +36,6 @@ struct LoadThermalCard: View {
 
     private var coreCount: Int { details?.cores.reduce(0) { $0 + $1.loads.count } ?? 0 }
 
-    /// The bar is load per core: full when there's as much work as cores.
     private func tile(_ caption: String, load: Double?) -> some View {
         let perCore = coreCount > 0 ? (load ?? 0) / Double(coreCount) : 0
         return StatTile(value: load.map(PanelFormat.load) ?? "—",
@@ -57,7 +54,6 @@ struct LoadThermalCard: View {
     }
 }
 
-/// One line for all fans: a bar each across its range, the fastest one's speed, or "Off".
 private struct FanRow: View {
     @Environment(\.panelPalette) private var palette
     let fans: [FanStatus]
@@ -84,7 +80,6 @@ private struct FanRow: View {
         .accessibilityValue(details)
     }
 
-    /// "Fan 1: 2 317 rpm (2 317–7 826)", one line per fan.
     private var details: String {
         fans.indices.map { index in
             let fan = fans[index]

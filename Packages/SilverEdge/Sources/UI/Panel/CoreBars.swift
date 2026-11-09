@@ -1,7 +1,6 @@
 import SwiftUI
 import Domain
 
-/// One kind of core: its name and average, then a bar per core.
 struct CoreBars: View {
     @Environment(\.panelPalette) private var palette
     let group: CoreGroup

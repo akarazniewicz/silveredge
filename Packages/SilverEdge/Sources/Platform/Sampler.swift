@@ -7,7 +7,6 @@ import Domain
 @MainActor
 package final class Sampler {
     package var onSample: (Sample) -> Void = { _ in }
-    /// Seconds between samples; the timer allows 20 % leeway so the system can coalesce wake-ups.
     package var interval: Double = 2 {
         didSet { if interval != oldValue, timer != nil { schedule(firstAfter: 0.3) } }
     }
@@ -16,7 +15,6 @@ package final class Sampler {
     private var previous: CPUTicks?
     private var previousSwap: (swap: MemoryStats.Swap, time: UInt64)?
     private var previousCores: [CPUTicks]?
-    /// Open only while details are read.
     private var fanProbe: FanProbe?
 
     package init() {}
@@ -26,7 +24,6 @@ package final class Sampler {
         schedule(firstAfter: 0.5)
     }
 
-    /// The first sample after `firstAfter` seconds, so a new item or panel doesn't wait a whole interval.
     private func schedule(firstAfter: Double) {
         timer?.cancel()
         let timer = DispatchSource.makeTimerSource(queue: .main)
@@ -39,8 +36,7 @@ package final class Sampler {
         self.timer = timer
     }
 
-    /// Starts reading cores, load and GPU each tick, and returns them now (cores at zero until the next tick
-    /// has a delta) so the panel opens at its full size. That next tick comes soon, not a whole interval later.
+    /// Returns cores at zero now (no delta yet), so the panel is built at its final height.
     package func startDetails() -> CPUDetails {
         previousCores = SystemReaders.coreTicks()
         fanProbe = FanProbe()

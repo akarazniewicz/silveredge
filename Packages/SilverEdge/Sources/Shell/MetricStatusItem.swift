@@ -2,7 +2,6 @@ import AppKit
 import Domain
 import UI
 
-/// One menu-bar item: a caption over a percentage. Redraws only when its reading changes.
 @MainActor
 final class MetricStatusItem: NSObject {
     enum Kind: String {
@@ -17,9 +16,7 @@ final class MetricStatusItem: NSObject {
         }
     }
 
-    /// A left click: open (or close) this item's panel.
     var onOpen: () -> Void = {}
-    /// The theme ticked in the menu, and a newly chosen one.
     var theme: () -> ThemeID = { .defaultID }
     var onTheme: (ThemeID) -> Void = { _ in }
 
@@ -35,7 +32,6 @@ final class MetricStatusItem: NSObject {
 
     func install() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        // Per bundle identifier, so SilverEdge Dev keeps its own positions.
         item.autosaveName = "\(Bundle.main.bundleIdentifier ?? "com.silveredge.app").status.\(kind.rawValue)"
         if let button = item.button {
             button.imageScaling = .scaleNone
@@ -67,7 +63,6 @@ final class MetricStatusItem: NSObject {
         }
     }
 
-    /// The button on screen, for placing the panel under it.
     var anchorFrame: (frame: CGRect, screen: NSScreen)? {
         guard let button = statusItem?.button, let window = button.window, let screen = window.screen else { return nil }
         return (window.convertToScreen(button.convert(button.bounds, to: nil)), screen)
@@ -75,8 +70,7 @@ final class MetricStatusItem: NSObject {
 
     // MARK: - Clicks
 
-    /// Left click opens the panel; right or Control-click, the menu.
-    /// An accessibility press (VoiceOver) comes without a mouse event and opens the panel too.
+    /// An accessibility press (VoiceOver) comes with no `NSApp.currentEvent`: treat it as a left click.
     @objc private func clicked() {
         let event = NSApp.currentEvent
         if event?.type == .rightMouseUp || event?.modifierFlags.contains(.control) == true {
@@ -98,7 +92,6 @@ final class MetricStatusItem: NSObject {
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height + 4), in: button)
     }
 
-    /// Theme ▸ with each theme, the current one ticked.
     private func themeItem() -> NSMenuItem {
         let item = NSMenuItem(title: L10n.tr("menu.theme", "Theme"), action: nil, keyEquivalent: "")
         let submenu = NSMenu()

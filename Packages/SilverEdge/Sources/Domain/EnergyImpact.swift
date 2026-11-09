@@ -1,6 +1,5 @@
 import Foundation
 
-/// One coalition's cumulative counters, in plain units. What `EnergyProbe` reads, without its private layout.
 package struct CoalitionCounters: Equatable, Sendable {
     /// CPU nanoseconds per thread QoS, in the kernel's order: unspecified, maintenance, background,
     /// utility, legacy, user-initiated, user-interactive. Empty when the kernel doesn't split it.
@@ -21,18 +20,15 @@ package struct CoalitionCounters: Equatable, Sendable {
     }
 }
 
-/// Activity Monitor's Energy Impact weights (`/usr/share/pmenergy/*.plist`, `energy_constants`):
-/// seconds of CPU-equivalent per unit of each activity.
+/// Activity Monitor's Energy Impact weights (`energy_constants` in `/usr/share/pmenergy/*.plist`).
 package struct EnergyWeights: Equatable, Sendable {
     package var cpuTime: Double
     package var wakeup: Double
     package var byteRead: Double
     package var byteWritten: Double
     package var gpuTime: Double
-    /// Per QoS, in `CoalitionCounters.cpuByQoS` order.
     package var qos: [Double]
 
-    /// macOS's `default.plist` values, for when the file can't be read.
     package static let standard = EnergyWeights(
         cpuTime: 1, wakeup: 0.0002, byteRead: 4.5e-10, byteWritten: 2.4e-10, gpuTime: 0, qos: [1, 0.8, 0.8, 1, 1, 1, 1]
     )
@@ -46,7 +42,6 @@ package struct EnergyWeights: Equatable, Sendable {
         self.qos = qos
     }
 
-    /// From an `energy_constants` dictionary; missing keys keep the standard value.
     package init(constants: [String: Double]) {
         let base = Self.standard
         func value(_ key: String, _ fallback: Double) -> Double { constants[key] ?? fallback }
@@ -81,8 +76,6 @@ package enum EnergyImpact {
         return nanoseconds / seconds / 1e7
     }
 
-    /// How heavy a score is on its own, whatever else runs: up to 10 light, to 50 moderate,
-    /// to 100 high, beyond that more than a full core.
     package enum Level: Equatable, Sendable {
         case light
         case moderate
@@ -99,13 +92,12 @@ package enum EnergyImpact {
         }
     }
 
-    /// Each score's part of `total`; zero when nothing ran.
     package static func share(_ score: Double, of total: Double) -> Double {
         total > 0 ? (score / total).clampedToUnit : 0
     }
 
-    /// The process that names a coalition: an app's main executable (exactly one `.app/Contents/MacOS/`
-    /// in its path) if there is one, else the lowest pid. Its name is the executable's file name.
+    /// An app's main executable (exactly one `.app/Contents/MacOS/` in its path) names its coalition,
+    /// else the lowest pid.
     package static func representative(of members: [(pid: Int32, path: String)]) -> (pid: Int32, name: String)? {
         let marker = ".app/Contents/MacOS/"
         let app = members.filter { $0.path.components(separatedBy: marker).count == 2 }.min { $0.pid < $1.pid }

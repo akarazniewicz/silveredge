@@ -3,7 +3,6 @@ import notify
 import Foundation
 import Domain
 
-/// Thermal pressure and Low Power Mode, both pushed by the system — never polled.
 @MainActor
 package final class ThermalMonitor {
     package private(set) var pressure: ThermalPressure = .nominal

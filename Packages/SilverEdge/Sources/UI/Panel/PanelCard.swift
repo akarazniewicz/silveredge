@@ -1,13 +1,10 @@
 import SwiftUI
 
-/// One card: a small uppercase header with its symbol, then the card's rows.
 struct PanelCard<Accessory: View, Content: View>: View {
     @Environment(\.panelPalette) private var palette
     let title: String
     let symbol: String
-    /// A headline figure at the header's end (the CPU total).
     var trailing: String?
-    /// Anything quieter at the header's end (uptime).
     let accessory: Accessory
     let content: Content
 

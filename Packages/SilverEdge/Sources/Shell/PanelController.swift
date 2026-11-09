@@ -2,14 +2,10 @@ import AppKit
 import SwiftUI
 import UI
 
-/// Shows one panel at a time under its status item. The window and its
-/// SwiftUI content are built on open and released on close, so a closed
-/// panel costs nothing.
 @MainActor
 final class PanelController {
-    /// The panel shown, or nil.
     private(set) var shown: MetricStatusItem.Kind?
-    /// When `shown` changes: before a panel is built (so its readers are primed) and after one closes.
+    /// Called before a panel is built, so its readers are primed, and after one closes.
     var onShow: (MetricStatusItem.Kind?) -> Void = { _ in }
 
     private var window: PanelWindow?
@@ -43,14 +39,13 @@ final class PanelController {
         onShow(nil)
     }
 
-    /// Centred under the item, kept inside the screen's visible frame.
     static func origin(for size: CGSize, below anchor: CGRect, in visibleFrame: CGRect) -> CGPoint {
         let margin = PanelTheme.screenMargin
         let x = min(max(anchor.midX - size.width / 2, visibleFrame.minX + margin), visibleFrame.maxX - margin - size.width)
         return CGPoint(x: x.rounded(), y: (anchor.minY - PanelTheme.anchorGap - size.height).rounded())
     }
 
-    /// Clicks in other apps close the panel. The app has no other windows, and a click on a status item is its own toggle.
+    /// A global monitor sees only other apps' clicks; a click on a status item toggles on its own.
     private func installMonitors() {
         monitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             self?.close()
@@ -63,7 +58,7 @@ final class PanelController {
     }
 }
 
-/// A borderless frosted panel that takes keys (Esc) without activating the app.
+/// `.nonactivatingPanel`: takes Esc without activating the app or stealing focus.
 private final class PanelWindow: NSPanel {
     var onCancel: () -> Void = {}
 

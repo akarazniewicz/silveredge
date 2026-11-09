@@ -1,22 +1,17 @@
 import Foundation
 import Domain
 
-/// Runs the open panel's process-list read (`ProcessProbe`) every few seconds. The timer fires on the reader's own serial queue, so the main thread only
-/// wakes for results.
 @MainActor
 package final class ProcessSampler {
     package var onUpdate: ([ProcessUsage]) -> Void = { _ in }
 
     private let queue = DispatchQueue(label: "com.silveredge.processes", qos: .utility)
     private var timer: DispatchSourceTimer?
-    /// Bumped on every start and stop, so a result from a reader that's since been replaced is dropped.
     private var generation = 0
 
     package init() {}
 
-    /// Reads at once, then every `seconds`. A rate list (CPU, energy) answers its first read with nothing —
-    /// that read is its baseline — so it's read again after `warmUp`, not a whole interval later.
-    /// `read` runs on this sampler's serial queue only.
+    /// A rate list's first read is only its baseline and returns nothing, so it's read again after `warmUp`.
     package func start(every seconds: Double, read: @escaping @Sendable () -> [ProcessUsage]) {
         stop()
         let generation = generation
@@ -44,7 +39,6 @@ package final class ProcessSampler {
         self.timer = timer
     }
 
-    /// Long enough for a meaningful first rate, short enough not to be noticed.
     private static let warmUp = 0.4
 
     package func stop() {

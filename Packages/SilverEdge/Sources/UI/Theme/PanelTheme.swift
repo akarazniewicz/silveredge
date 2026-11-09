@@ -1,12 +1,9 @@
 import SwiftUI
 
-/// The panels' metrics and type; colours come from the theme (`PanelPalette`).
 package enum PanelTheme {
     package static let width: CGFloat = 300
     package static let cornerRadius: CGFloat = 16
-    /// Gap between the status item and the panel's top edge.
     package static let anchorGap: CGFloat = 6
-    /// Minimum distance from the screen's visible edges.
     package static let screenMargin: CGFloat = 8
 
     static let padding: CGFloat = 10
@@ -30,13 +27,11 @@ package enum PanelTheme {
     static let axisFont = Font.system(size: 9.5, weight: .medium)
     static let coreBarHeight: CGFloat = 26
     static let coreBarSpacing: CGFloat = 3
-    /// Rows in a process list; the readers are asked for as many.
     package static let processRows = 8
     static let iconSize: CGFloat = 16
     static let shareMeterWidth: CGFloat = 70
     static let placeholderBarHeight: CGFloat = 8
     static let placeholderValueWidth: CGFloat = 36
-    /// Fits "100%", so the bars line up.
     static let shareValueWidth: CGFloat = 38
 
     static let tileRadius: CGFloat = 8
@@ -45,7 +40,6 @@ package enum PanelTheme {
     static let gaugeSegmentHeight: CGFloat = 5
 
     static let fanMeterWidth: CGFloat = 34
-    /// Fits "7 826 rpm", so the bars stay put as speeds change.
     static let fanValueWidth: CGFloat = 76
 
     static let breakdownHeight: CGFloat = 10

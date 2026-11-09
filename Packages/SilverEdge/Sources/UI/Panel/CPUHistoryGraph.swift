@@ -1,7 +1,6 @@
 import SwiftUI
 import Domain
 
-/// The CPU's recent past: user below, system stacked on it.
 struct CPUHistoryGraph: View {
     @Environment(\.panelPalette) private var palette
     let history: History<CPUUsage>

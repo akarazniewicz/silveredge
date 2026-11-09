@@ -1,7 +1,6 @@
 import SwiftUI
 import Domain
 
-/// The RAM item's panel: how much is used, by what, whether pressure is healthy, whether it's swapping, and who uses it.
 package struct MemoryPanelView: View {
     @Environment(\.panelPalette) private var palette
     let stats: LiveStats
@@ -44,7 +43,6 @@ package struct MemoryPanelView: View {
         }
     }
 
-    /// Pressure level (not utilisation: a full Mac is normal) and how much is used of how much.
     private func usageRow(_ memory: MemoryStats?) -> some View {
         HStack(spacing: 8) {
             LevelGauge(steps: 3, lit: stats.pressure.rawValue + 1, color: palette.pressure(stats.pressure))

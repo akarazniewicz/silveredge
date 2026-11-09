@@ -1,11 +1,8 @@
-/// What only the open CPU panel reads: cores, load, GPU, battery and fans.
 package struct CPUDetails: Equatable, Sendable {
     package var cores: [CoreGroup]
     package var load: LoadAverage
     package var gpu: GPUStats?
-    /// Nil on a Mac without a battery.
     package var battery: BatteryStatus?
-    /// Empty on a fanless Mac.
     package var fans: [FanStatus]
 
     package init(cores: [CoreGroup], load: LoadAverage, gpu: GPUStats?, battery: BatteryStatus?, fans: [FanStatus]) {
@@ -20,11 +17,9 @@ package struct CPUDetails: Equatable, Sendable {
 package enum CoreKind: Equatable, Sendable {
     case performance
     case efficiency
-    /// A CPU with one kind of core (Intel).
     case uniform
 }
 
-/// One kind of core and each core's busy share, 0…1.
 package struct CoreGroup: Equatable, Sendable {
     package var kind: CoreKind
     package var loads: [Double]
@@ -48,7 +43,6 @@ package struct LoadAverage: Equatable, Sendable {
     package var one: Double
     package var five: Double
     package var fifteen: Double
-    /// Seconds since boot, sleep included.
     package var uptime: Double
 
     package init(one: Double, five: Double, fifteen: Double, uptime: Double) {
@@ -61,7 +55,6 @@ package struct LoadAverage: Equatable, Sendable {
 
 package struct GPUStats: Equatable, Sendable {
     package var name: String
-    /// 0…1.
     package var utilization: Double?
     package var memoryInUse: UInt64?
 

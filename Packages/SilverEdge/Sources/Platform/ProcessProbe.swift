@@ -3,25 +3,17 @@ import Foundation
 import IOKit
 import Domain
 
-/// The process lists: per process by CPU or memory, per app by Energy Impact — without `ps` or `top`.
+/// `proc_pid_rusage` reads only this user's processes; root and other users' are counted through their
+/// resource coalition, readable without root. Energy Impact is per coalition, as in Activity Monitor.
 ///
-/// Readable processes (this user's) come from `proc_pid_rusage`: exact CPU time and footprint, the figures
-/// Activity Monitor shows. The rest (root and other users') are counted through the kernel's resource
-/// coalitions, which can be read without root: a daemon alone in its coalition exactly, a few sharing one
-/// as a group (`ProcessRanking`). Energy Impact is per coalition, as Activity Monitor's Energy tab groups it.
-///
-/// The only code that touches the private coalition interface: `coalition_info_resource_usage` (resolved at
-/// run time — without it only readable processes are listed and there's no energy), `PROC_PIDCOALITIONINFO`,
-/// and the layout of `struct coalition_resource_usage` (xnu `osfmk/mach/coalition.h`) as word slots. The struct
-/// only grows at its end and the kernel copies no more than the buffer it's given, so a larger buffer stays safe.
-///
-/// Stateful (previous counters for CPU and energy): use from one serial queue.
+/// Private: `coalition_info_resource_usage` (via `dlsym`) and the `struct coalition_resource_usage` layout
+/// (xnu `osfmk/mach/coalition.h`). The struct only grows at its end and the kernel copies no more than
+/// the buffer, so an oversized buffer stays safe. Stateful: use from one serial queue.
 package final class ProcessProbe: @unchecked Sendable {
     private typealias ResourceUsage = @convention(c) (UInt64, UnsafeMutableRawPointer, Int) -> Int32
 
     /// `proc_pidinfo` flavor: `struct proc_pidcoalitioninfo { uint64_t coalition_id[2]; uint64_t reserved[3]; }`.
     private static let pidCoalitionInfo: Int32 = 20
-    /// Slots of `struct coalition_resource_usage`, as 64-bit words.
     private enum Slot {
         static let cpuTime = 3
         static let interruptWakeups = 4
@@ -34,31 +26,26 @@ package final class ProcessProbe: @unchecked Sendable {
         static let maxQoS = 7
         static let physFootprint = 40
     }
-    /// Room for today's ~50 words and whatever later releases append.
     private static let bufferWords = 128
-    /// A longer gap than this (the list was off) starts a fresh baseline instead of averaging over it.
     private static let maxInterval = 10.0
 
     private let resourceUsage: ResourceUsage?
     private let weights: EnergyWeights
-    /// Mach ticks to nanoseconds.
+    /// `proc_pid_rusage` and coalition times are Mach ticks, not nanoseconds (125/3 on Apple silicon).
     private let timebase: Double
-    /// Reused for every coalition read; the kernel fills what it knows and leaves the rest.
     private var words = [UInt64](repeating: 0, count: bufferWords)
 
-    /// A process never changes coalition, so each pid is asked once; exited pids drop out.
+    /// A process never changes coalition, so each pid is asked once.
     private var coalitions: [Int32: UInt64] = [:]
     private var processNames: [Int32: String] = [:]
     private var appNames: [UInt64: (pid: Int32, name: String)] = [:]
 
-    // The last sample, for rates.
     private var lastMetric: ProcessMetric?
     private var lastTime: UInt64 = 0
     private var lastProcessCPU: [Int32: UInt64] = [:]
     private var lastCoalitionCPU: [UInt64: UInt64] = [:]
     private var lastEnergy: [UInt64: CoalitionCounters] = [:]
 
-    /// False when this macOS lacks the coalition interface: no energy list, and only readable processes.
     package var energyAvailable: Bool { resourceUsage != nil }
 
     package init() {
@@ -71,15 +58,14 @@ package final class ProcessProbe: @unchecked Sendable {
         resourceUsage = symbol.map { unsafeBitCast($0, to: ResourceUsage.self) }.flatMap(Self.ifItWorks)
     }
 
-    /// The call, if it answers for this app's own coalition; a macOS that has it but refuses gets none.
+    /// Some macOS versions export the call but refuse it: try it on our own coalition first.
     private static func ifItWorks(_ call: ResourceUsage) -> ResourceUsage? {
         guard let own = coalition(of: getpid()) else { return nil }
         var words = [UInt64](repeating: 0, count: bufferWords)
         return words.withUnsafeMutableBytes { call(own, $0.baseAddress!, $0.count) } == 0 ? call : nil
     }
 
-    /// The `limit` highest rows by `metric`, highest first. CPU and energy are rates: the first call after a
-    /// switch or a long gap sets the baseline and returns nothing.
+    /// CPU and energy are rates: the first call after a switch or a long gap is a baseline and returns nothing.
     package func sample(_ metric: ProcessMetric, limit: Int) -> [ProcessUsage] {
         let now = mach_absolute_time()
         let seconds = Double(now - lastTime) * timebase / 1e9
@@ -106,7 +92,6 @@ package final class ProcessProbe: @unchecked Sendable {
 
     // MARK: - CPU
 
-    /// %CPU (100 is one core) per readable process, and per unreadable group from its coalition's CPU time.
     private func cpuRows(_ processes: [ProcessRecord], seconds: Double?, limit: Int) -> [ProcessUsage] {
         var processCPU: [Int32: UInt64] = [:]
         var coalitionCPU: [UInt64: UInt64] = [:]
@@ -137,7 +122,6 @@ package final class ProcessProbe: @unchecked Sendable {
 
     // MARK: - Energy
 
-    /// Activity Monitor's Energy Impact per coalition (one app with its helpers), with each one's share of all.
     private func energyRows(_ processes: [ProcessRecord], seconds: Double?, limit: Int) -> [ProcessUsage] {
         var members: [UInt64: [Int32]] = [:]
         for process in processes { members[process.coalition, default: []].append(process.pid) }
@@ -153,7 +137,6 @@ package final class ProcessProbe: @unchecked Sendable {
             guard let before = old[id] else { return nil }
             return (id, EnergyImpact.score(from: before, to: counters, seconds: seconds, weights: weights))
         }
-        // Every coalition counts toward the whole, not just the ones listed.
         let total = scored.reduce(0) { $0 + $1.score }
         return scored.sorted { $0.score > $1.score }.prefix(limit).compactMap { entry in
             guard let app = appName(entry.id, members: members[entry.id] ?? []) else { return nil }
@@ -183,13 +166,11 @@ package final class ProcessProbe: @unchecked Sendable {
     private struct ProcessRecord {
         let pid: Int32
         let coalition: UInt64
-        /// Nil when this app may not read it.
         let usage: Usage?
     }
 
-    /// Every process with its coalition, and its own usage where readable. ~1,000 processes in a few ms.
     private func readProcesses() -> [ProcessRecord] {
-        // Room for a few more than exist now, in case some start between the two calls.
+        // Headroom: processes can start between the count and the list call.
         var pids = [pid_t](repeating: 0, count: Int(proc_listallpids(nil, 0)) + 64)
         let count = Int(proc_listallpids(&pids, Int32(pids.count * MemoryLayout<pid_t>.size)))
         var known: [Int32: UInt64] = [:]
@@ -214,7 +195,6 @@ package final class ProcessProbe: @unchecked Sendable {
         return Usage(cpuNanoseconds: ticks(info.ri_user_time + info.ri_system_time), footprint: info.ri_phys_footprint)
     }
 
-    /// A coalition's counters as raw words; nil without the interface or when refused.
     private func read(_ coalition: UInt64) -> [UInt64]? {
         guard let resourceUsage else { return nil }
         let result = words.withUnsafeMutableBytes { resourceUsage(coalition, $0.baseAddress!, $0.count) }
@@ -232,7 +212,7 @@ package final class ProcessProbe: @unchecked Sendable {
 
     // MARK: - Names
 
-    /// The executable's file name in full (the kernel's short name when there's no path, as for kernel_task).
+    /// The kernel's short name when there's no path (kernel_task).
     private func name(of pid: Int32) -> String {
         if let known = processNames[pid] { return known }
         let path = Self.path(pid)
@@ -241,7 +221,6 @@ package final class ProcessProbe: @unchecked Sendable {
         return name
     }
 
-    /// Cached per coalition: the paths are read once, when it first ranks.
     private func appName(_ coalition: UInt64, members: [Int32]) -> (pid: Int32, name: String)? {
         if let known = appNames[coalition] { return known }
         let named = EnergyImpact.representative(of: members.map { ($0, Self.path($0)) })
@@ -256,7 +235,6 @@ package final class ProcessProbe: @unchecked Sendable {
         return String(cString: buffer)
     }
 
-    /// The kernel's short command name, readable for every process.
     private static func command(_ pid: Int32) -> String {
         var info = kinfo_proc()
         var size = MemoryLayout<kinfo_proc>.size
@@ -267,7 +245,7 @@ package final class ProcessProbe: @unchecked Sendable {
 
     // MARK: - Weights
 
-    /// This Mac's coefficients (`/usr/share/pmenergy/<board-id>.plist`), else the default file, else built-in.
+    /// Activity Monitor's coefficients: `/usr/share/pmenergy/<board-id>.plist`, else `default.plist`.
     private static func loadWeights() -> EnergyWeights {
         let folder = URL(fileURLWithPath: "/usr/share/pmenergy")
         let files = [boardID().map { "\($0).plist" }, "default.plist"].compactMap { $0 }
@@ -280,7 +258,7 @@ package final class ProcessProbe: @unchecked Sendable {
         return .standard
     }
 
-    /// Intel Macs have a board id; Apple silicon has none and uses the default file.
+    /// Only Intel Macs have a board id.
     private static func boardID() -> String? {
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"))
         guard service != 0 else { return nil }

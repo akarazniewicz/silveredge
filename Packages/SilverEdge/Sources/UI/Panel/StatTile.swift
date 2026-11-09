@@ -1,10 +1,8 @@
 import SwiftUI
 
-/// A figure, a bar where it has a scale, and what it is: load averages, battery, swap.
 struct StatTile: View {
     @Environment(\.panelPalette) private var palette
     let value: String
-    /// 0…1; nil means no bar (the figure has no meaningful scale).
     var fraction: Double?
     var tint: Color?
     let caption: String

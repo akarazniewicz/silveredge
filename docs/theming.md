@@ -6,7 +6,7 @@
 - `PanelPalette` (UI) holds every panel colour and the window's surface; `PanelTheme` only metrics and type.
   Views read `@Environment(\.panelPalette)`; never a theme id, never hard-coded colours.
 - Frost and System: system colours over a material (`.hudWindow` / `.popover`), light or dark with the system.
-- Opal, Graphite Pro, One Dark Pro (dark) and Quartz Pro (light): colours from DayEdge's themes of the same names on a
+- Opal, Graphite Pro, One Dark Pro (dark) and Quartz Pro (light): their own colours on a
   near-opaque base over the material; the window's appearance is forced to match.
 - The material's mask rounds only the material; `PanelContainer` rounds the theme's surface itself.
 - Reduce Transparency: `NSVisualEffectView` turns solid on its own. Menu-bar items keep system colours in every theme.

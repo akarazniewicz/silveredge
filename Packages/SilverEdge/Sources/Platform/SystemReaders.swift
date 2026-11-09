@@ -2,7 +2,6 @@ import Darwin
 import Foundation
 import Domain
 
-/// The two cheap kernel reads the menu bar needs, a few microseconds each.
 package enum SystemReaders {
     /// `mach_host_self()` hands out a new send right per call; take it once.
     private static let host = mach_host_self()
@@ -47,7 +46,6 @@ package enum SystemReaders {
         return MemoryStats.Swap(used: usage.xsu_used, total: usage.xsu_total, swappedIn: swappedIn, swappedOut: swappedOut)
     }
 
-    /// Each core's cumulative ticks, in CPU number order.
     package static func coreTicks() -> [CPUTicks]? {
         var cpuCount: natural_t = 0
         var info: processor_info_array_t?

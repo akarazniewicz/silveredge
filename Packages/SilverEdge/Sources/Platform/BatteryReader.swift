@@ -2,8 +2,7 @@ import Foundation
 import IOKit
 import Domain
 
-/// The internal battery from the smart battery's registry entry. Nil without one (desktop Macs).
-/// Only while the CPU panel is open; reads just the keys it shows (the whole entry is ~9 KB, 5× slower).
+/// Reads single keys: the whole registry entry is ≈ 9 KB and 5× slower.
 package enum BatteryReader {
     package static func read() -> BatteryStatus? {
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))

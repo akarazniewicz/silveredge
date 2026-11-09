@@ -1,10 +1,8 @@
 import SwiftUI
 import Domain
 
-/// One bar of a `BarGraph`: segments stacked up from the baseline and, in a mirrored graph, one down from it.
 struct GraphBar {
     struct Segment {
-        /// 0…1 of the graph's height (of each half, when mirrored).
         var fraction: Double
         var color: Color
     }
@@ -13,11 +11,7 @@ struct GraphBar {
     var down: Segment?
 }
 
-/// The panels' history graph: a slot per bar, newest at the right, nil slots left empty.
-/// `capped` draws each bar faint with a solid top edge — an area under a level, for discrete states.
-///
-/// Drawn as one filled path per colour, not a `Canvas`: in a panel a `Canvas` this size held ≈ 130 MB of
-/// graphics memory (measured); shapes cost next to nothing.
+/// Filled paths, one per colour — never a `Canvas`: a `Canvas` this size held ≈ 130 MB of graphics memory.
 struct BarGraph: View {
     @Environment(\.panelPalette) private var palette
     let capacity: Int
@@ -54,7 +48,6 @@ struct BarGraph: View {
         var rects: [CGRect]
     }
 
-    /// Every bar's rectangles, grouped by colour, and the baseline.
     private func layout(_ size: CGSize) -> (fills: [Layer], baseline: [CGRect]) {
         let slot = size.width / CGFloat(capacity)
         let width = max(1, slot - PanelTheme.graphBarGap)
@@ -73,7 +66,6 @@ struct BarGraph: View {
             let x = size.width - CGFloat(bars.count - index) * slot
             var top = baseline
             for segment in bar.up {
-                // Stacked segments never run past the top.
                 let length = min(span * segment.fraction.clampedToUnit, top - (baseline - span))
                 guard length > 0 else { continue }
                 top -= length

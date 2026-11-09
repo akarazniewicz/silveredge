@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// The yellow "Low Power" pill: Low Power Mode holds the CPU back too.
 struct LowPowerBadge: View {
     @Environment(\.panelPalette) private var palette
 
@@ -15,7 +14,6 @@ struct LowPowerBadge: View {
     }
 }
 
-/// A coloured legend dot.
 struct LegendDot: View {
     let color: Color
 
@@ -24,7 +22,6 @@ struct LegendDot: View {
     }
 }
 
-/// A small "label value" pair under a graph or in a header, optionally keyed by a dot. Never wraps.
 struct CaptionValue: View {
     let label: String
     let value: String?

@@ -2,12 +2,8 @@ import Foundation
 import IOKit
 import Domain
 
-/// Fan speeds from the System Management Controller — what monitoring apps read without root.
-///
-/// The only code that talks to the SMC: its user client's call (selector 2 on `AppleSMC`), the layout of its
-/// 80-byte parameter block (as byte offsets), and the fan keys (`FNum`; `F<n>Ac` actual, `F<n>Mn` minimum,
-/// `F<n>Mx` maximum RPM). Nil when the SMC can't be opened or reports no fans. Ranges and key types are read
-/// once; each read is then one call per fan. Holds the connection while it lives: keep it only while a panel shows it.
+/// SMC fan speeds, no root: `AppleSMC` user client, struct method 2, an 80-byte parameter block
+/// (as byte offsets), keys `FNum` and `F<n>Ac`/`Mn`/`Mx`. Holds the connection: keep only while shown.
 @MainActor
 package final class FanProbe {
     private enum Offset {

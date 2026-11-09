@@ -1,9 +1,6 @@
 import AppKit
 import Domain
 
-/// Draws one menu-bar item, as narrow as it can be without shifting while values tick: wide enough for
-/// "99%" (monospaced digits, so every two-digit value fits), wider only at 100 % and while the pressure dot shows.
-/// The caption and the layout are measured once; each new reading measures only its value.
 @MainActor
 package struct MetricItemRenderer {
     private let caption: NSAttributedString
@@ -45,7 +42,7 @@ package struct MetricItemRenderer {
             }
             return true
         }
-        // Drawn on every display, so label colours follow the menu bar's light or dark appearance.
+        // `cacheMode = .never`: redrawn per display, so label colours follow the menu bar's appearance.
         image.cacheMode = .never
         return image
     }

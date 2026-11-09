@@ -1,7 +1,6 @@
 import Foundation
 import Domain
 
-/// Number formatting shared by the panels.
 enum PanelFormat {
     private static let gigabyte = 1_073_741_824.0
 
@@ -13,7 +12,6 @@ enum PanelFormat {
         fraction.formatted(.percent.precision(.fractionLength(0)))
     }
 
-    /// "35,3 / 48 GB": one unit for both, so the row stays one short line.
     static func gigabytes(_ part: UInt64, of whole: UInt64) -> String {
         let part = decimal(Double(part) / gigabyte, digits: 1)
         let whole = (Double(whole) / gigabyte).formatted(.number.precision(.fractionLength(0...1)))
@@ -34,12 +32,10 @@ enum PanelFormat {
         }
     }
 
-    /// A process's share of one core, as Activity Monitor shows it: "98.4%".
     static func processPercent(_ percent: Double) -> String {
         (percent / 100).formatted(.percent.precision(.fractionLength(1)))
     }
 
-    /// "59d 1h" or "5h 41m": uptime, time to full or empty.
     static func duration(_ seconds: Double) -> String {
         (seconds >= 86_400 ? daysFormatter : hoursFormatter).string(from: seconds) ?? ""
     }
@@ -54,7 +50,6 @@ enum PanelFormat {
         return formatter
     }
 
-    /// A load average: "2.61".
     static func load(_ load: Double) -> String {
         decimal(load, digits: 2)
     }
@@ -67,7 +62,7 @@ enum PanelFormat {
         Self.bytes(UInt64(max(0, bytes)))
     }
 
-    /// "0 KB", never the spelled-out "Zero KB".
+    /// `allowsNonnumericFormatting = false`, or zero prints as "Zero KB".
     private static let byteFormatter: ByteCountFormatter = {
         let formatter = ByteCountFormatter()
         formatter.countStyle = .memory
@@ -91,7 +86,6 @@ enum PanelFormat {
         L10n.tr("format.celsius", "\(Int(celsius.rounded())) °C")
     }
 
-    /// Activity Monitor's Energy Impact: "123.0".
     static func energy(_ score: Double) -> String {
         decimal(score, digits: 1)
     }
@@ -100,7 +94,6 @@ enum PanelFormat {
         decimal(value, digits: 0)
     }
 
-    /// A process list's value for its metric.
     static func process(_ value: Double, _ metric: ProcessMetric) -> String {
         switch metric {
         case .cpu: processPercent(value)

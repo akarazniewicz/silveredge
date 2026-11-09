@@ -4,7 +4,6 @@ import Platform
 import SwiftUI
 import UI
 
-/// Wires the samplers and monitors to the two menu-bar items and their panels.
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let cpuItem = MetricStatusItem(kind: .cpu)
@@ -20,7 +19,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         didSet { UserDefaults.standard.set(theme.rawValue, forKey: Self.themeKey) }
     }
 
-    // In the app's own defaults, so SilverEdge Dev keeps its own choices.
     private static let themeKey = "appearance.theme"
     private static let cpuListKey = "cpu.listMode"
 
@@ -78,8 +76,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Sets every reader from what's shown now: faster sampling while a panel is open, the CPU panel's
-    /// details only while it is, and the open panel's process list. Called whenever either changes.
     private func syncReaders() {
         let shown = panels.shown
         sampler.interval = shown == nil ? 2 : 1

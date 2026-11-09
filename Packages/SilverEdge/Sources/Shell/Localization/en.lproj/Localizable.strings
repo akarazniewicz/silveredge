@@ -13,7 +13,7 @@
 "menuBar.accessibility.thermalWarning" = "%@, CPU throttled by heat";
 "menuBar.accessibility.thermalCritical" = "%@, CPU heavily throttled by heat";
 
-/* Theme submenu: the panel themes, names as in DayEdge. */
+/* Theme submenu: the panel themes. */
 "menu.theme" = "Theme";
 "theme.frost" = "Frost";
 "theme.system" = "System";

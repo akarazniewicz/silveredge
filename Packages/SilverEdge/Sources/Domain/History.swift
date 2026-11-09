@@ -1,4 +1,3 @@
-/// The last `capacity` values, oldest first. A ring: appending never reallocates once full.
 package struct History<Element: Sendable>: Sendable {
     package let capacity: Int
     private var storage: [Element] = []

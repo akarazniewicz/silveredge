@@ -1,4 +1,3 @@
-/// The kernel's cumulative CPU tick counters (`host_cpu_load_info`), all cores together.
 package struct CPUTicks: Equatable, Sendable {
     package var user: UInt32
     package var system: UInt32
@@ -13,7 +12,6 @@ package struct CPUTicks: Equatable, Sendable {
     }
 }
 
-/// Share of CPU time between two tick snapshots, each 0…1.
 package struct CPUUsage: Equatable, Sendable {
     package var user: Double
     package var system: Double

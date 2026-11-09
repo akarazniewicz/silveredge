@@ -2,14 +2,9 @@ import AppKit
 import Domain
 import SwiftUI
 
-/// Every colour the panels draw with, and the window's surface. One per theme (`PanelPalette.make`);
-/// views read it from `\.panelPalette`, never a theme id.
 package struct PanelPalette {
-    /// Forced on the window; nil follows the system.
     package var appearance: NSAppearance.Name?
-    /// The frosted material behind everything; translucent themes show it through `surface`.
     package var material: NSVisualEffectView.Material
-    /// Over the material: clear for frosted themes, the theme's base colour for solid ones.
     package var surface: Color
     package var primaryText: Color
     package var secondaryText: Color
@@ -17,9 +12,7 @@ package struct PanelPalette {
     package var cardKeyline: Color
     package var tileFill: Color
     package var track: Color
-    /// User CPU, app memory, ordinary bars.
     package var accent: Color
-    /// System CPU.
     package var system: Color
     package var efficiency: Color
     package var green: Color
@@ -29,7 +22,6 @@ package struct PanelPalette {
     package var purple: Color
     package var teal: Color
 
-    /// Load per core: calm below half, warm toward full, red past it.
     package func load(_ perCore: Double) -> Color {
         perCore < 0.5 ? accent : perCore < 1 ? orange : red
     }
@@ -43,7 +35,6 @@ package struct PanelPalette {
         }
     }
 
-    /// A fan's place in its range: calm low, warm past 40 %, red past 75 %.
     package func fan(_ fraction: Double) -> Color {
         fraction < 0.4 ? accent : fraction < 0.75 ? orange : red
     }
@@ -87,7 +78,6 @@ extension PanelPalette {
         }
     }
 
-    /// System colours over a material, light or dark with the system.
     private static func frosted(material: NSVisualEffectView.Material) -> PanelPalette {
         PanelPalette(
             appearance: nil, material: material, surface: .clear,
@@ -100,7 +90,6 @@ extension PanelPalette {
         )
     }
 
-    /// A solid theme's own colours, as hex RGB.
     private struct Tones {
         var light: Bool
         var base: UInt32
@@ -115,7 +104,6 @@ extension PanelPalette {
         var purple: UInt32
     }
 
-    /// A theme's own colours on a near-opaque base, one appearance.
     private static func solid(_ tones: Tones) -> PanelPalette {
         let (light, base, card, text, secondary) = (tones.light, tones.base, tones.card, tones.text, tones.secondary)
         let (accent, red, green, amber, cyan, purple) = (tones.accent, tones.red, tones.green, tones.amber, tones.cyan, tones.purple)
@@ -131,7 +119,6 @@ extension PanelPalette {
         )
     }
 
-    // Colours from DayEdge's themes of the same names.
     private static let opal = solid(Tones(light: false, base: 0x1c1c1d, card: 0x262628, text: 0xffffff, secondary: 0x8c8c8e,
                                     accent: 0x4d9eff, red: 0xed3b3b, green: 0x34c759, amber: 0xf2a829, cyan: 0x5ac8d8, purple: 0xbf5af2))
     private static let graphitePro = solid(Tones(light: false, base: 0x111214, card: 0x18191c, text: 0xeeeff1, secondary: 0xa4a5ad,

@@ -2,8 +2,6 @@ import AppKit
 import SwiftUI
 import Domain
 
-/// A fixed number of rows, filled as far as there are processes, so the panel keeps its height;
-/// placeholder rows until the first results arrive.
 struct ProcessList: View {
     @Environment(\.panelPalette) private var palette
     let processes: [ProcessUsage]
@@ -41,13 +39,11 @@ struct ProcessList: View {
                 .help(help(for: process))
                 .accessibilityElement(children: .combine)
             } else {
-                // Same height as a filled row.
                 Text(verbatim: " ").frame(height: PanelTheme.iconSize)
             }
         }
     }
 
-    /// The raw score behind an energy share; what a group row includes.
     private func help(for process: ProcessUsage) -> String {
         if process.share != nil { return L10n.tr("energy.impactHelp", "Energy Impact \(PanelFormat.energy(process.value))") }
         if process.others > 0 {
@@ -57,15 +53,12 @@ struct ProcessList: View {
     }
 }
 
-/// Rows shaped like the real ones — icon, name, value — pulsing gently in a wave until the list arrives
-/// (about half a second for CPU and energy, which need two readings). Still with Reduce Motion.
 private struct ProcessListPlaceholder: View {
     @Environment(\.panelPalette) private var palette
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let showsShare: Bool
     @State private var dimmed = false
 
-    /// Varied, so it reads as a list of names rather than a grid.
     private static let nameWidths: [CGFloat] = [118, 92, 136, 104, 78, 124, 96, 110]
 
     var body: some View {
@@ -92,9 +85,7 @@ private struct ProcessListPlaceholder: View {
     }
 }
 
-/// App icons by pid: the running app's, else one shared executable icon — each shrunk once to a small bitmap.
-/// Drawn as is, an app icon goes to the GPU at full size (≈ 4 MB each, measured ≈ 120 MB for a panel's worth).
-/// Lives as long as the open panel.
+/// Icons are shrunk once to a 32 px bitmap: drawn as is, each app icon goes to the GPU at full size (≈ 4 MB).
 @MainActor
 final class ProcessIcons {
     private static let limit = 64
@@ -109,7 +100,6 @@ final class ProcessIcons {
         return icon
     }
 
-    /// The icon at the row's size in pixels (Retina), as a plain bitmap with nothing larger behind it.
     private static func thumbnail(_ image: NSImage) -> NSImage {
         let pixels = Int(PanelTheme.iconSize * 2)
         guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: pixels, pixelsHigh: pixels, bitsPerSample: 8,

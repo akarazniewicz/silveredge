@@ -1,21 +1,17 @@
-/// Physical memory split the way Activity Monitor shows it, plus swap, in bytes.
 package struct MemoryStats: Equatable, Sendable {
     package var physical: UInt64
-    /// Anonymous memory apps hold (internal pages minus purgeable).
+    /// Activity Monitor's App memory: internal pages minus purgeable.
     package var app: UInt64
     package var wired: UInt64
-    /// What the compressor occupies.
     package var compressed: UInt64
-    /// What the compressed pages would occupy uncompressed.
     package var compressedOriginal: UInt64
-    /// File-backed and purgeable pages the system can drop at once.
+    /// External (file-backed) plus purgeable: dropped on demand, so it counts as available.
     package var cached: UInt64
     package var swap = Swap()
 
     package struct Swap: Equatable, Sendable {
         package var used: UInt64
         package var total: UInt64
-        /// Cumulative bytes swapped in and out since boot.
         package var swappedIn: UInt64
         package var swappedOut: UInt64
 
@@ -27,13 +23,11 @@ package struct MemoryStats: Equatable, Sendable {
         }
     }
 
-    /// "Memory Used": App + Wired + Compressed.
+    /// Activity Monitor's "Memory Used": App + Wired + Compressed.
     package var used: UInt64 { app + wired + compressed }
 
-    /// What apps can get without swapping: cached files and purgeable memory are dropped on demand.
     package var available: UInt64 { cached + free }
 
-    /// What's left once used and cached are counted, so the breakdown adds up to physical memory.
     package var free: UInt64 { physical - min(physical, used + cached) }
 
     package var usedFraction: Double {
@@ -41,13 +35,12 @@ package struct MemoryStats: Equatable, Sendable {
         return min(1, Double(used) / Double(physical))
     }
 
-    /// How many times smaller the compressor keeps what it holds; nil when it holds nothing.
     package var compressionRatio: Double? {
         guard compressed > 0, compressedOriginal > 0 else { return nil }
         return Double(compressedOriginal) / Double(compressed)
     }
 
-    /// From `vm_statistics64` page counts; `anonymous` is its internal page count.
+    /// `anonymous` is `internal_page_count`.
     package init(pageSize: UInt64, physical: UInt64, anonymous: UInt64, purgeable: UInt64,
                  external: UInt64, wired: UInt64, compressor: UInt64, uncompressed: UInt64 = 0, swap: Swap = Swap()) {
         self.physical = physical
@@ -60,7 +53,6 @@ package struct MemoryStats: Equatable, Sendable {
     }
 }
 
-/// Swap traffic per second between two samples.
 package struct SwapRate: Equatable, Sendable {
     package var inPerSecond: Double
     package var outPerSecond: Double
@@ -70,7 +62,6 @@ package struct SwapRate: Equatable, Sendable {
         self.outPerSecond = outPerSecond
     }
 
-    /// Nil without elapsed time; a counter that went back (a reset) reads zero.
     package static func between(_ old: MemoryStats.Swap, _ new: MemoryStats.Swap, seconds: Double) -> SwapRate? {
         guard seconds > 0 else { return nil }
         func rate(_ old: UInt64, _ new: UInt64) -> Double { new >= old ? Double(new - old) / seconds : 0 }
@@ -78,7 +69,6 @@ package struct SwapRate: Equatable, Sendable {
     }
 }
 
-/// The parts of the breakdown bar, in its order.
 package enum MemoryPart: CaseIterable, Sendable {
     case app
     case wired
@@ -98,7 +88,6 @@ extension MemoryStats {
         }
     }
 
-    /// A part's share of physical memory, 0…1.
     package func fraction(_ part: MemoryPart) -> Double {
         physical > 0 ? Double(bytes(part)) / Double(physical) : 0
     }

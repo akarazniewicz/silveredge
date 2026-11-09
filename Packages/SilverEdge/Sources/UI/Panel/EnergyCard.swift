@@ -1,7 +1,6 @@
 import SwiftUI
 import Domain
 
-/// The battery: charge and what it's doing, then draw, health and temperature. Not shown without a battery.
 struct EnergyCard: View {
     @Environment(\.panelPalette) private var palette
     let battery: BatteryStatus
@@ -32,7 +31,6 @@ struct EnergyCard: View {
             LevelGauge(steps: 10, lit: Int((Double(battery.percent) / 10).rounded(.up)), color: chargeColor, segmentWidth: 8)
             Text(PanelFormat.percent(Double(battery.percent) / 100)).font(PanelTheme.valueFont)
             Spacer(minLength: 6)
-            // An icon and the one figure that matters; the full sentence is the tooltip.
             HStack(spacing: 4) {
                 Image(systemName: stateSymbol).foregroundStyle(battery.isCharging ? palette.green : palette.secondaryText)
                 if let stateFigure {
@@ -51,7 +49,6 @@ struct EnergyCard: View {
         return battery.externalPower ? "powerplug.fill" : "battery.75percent"
     }
 
-    /// Time to full or empty; the charger's watts when plugged in and idle.
     private var stateFigure: String? {
         if battery.isCharging || !battery.externalPower {
             return remaining
@@ -59,7 +56,6 @@ struct EnergyCard: View {
         return battery.fullyCharged ? nil : battery.adapterWatts.map { L10n.tr("format.wattsInteger", "\($0) W") }
     }
 
-    /// Time to full or to empty.
     private var remaining: String? {
         battery.minutesRemaining.map { PanelFormat.duration(Double($0) * 60) }
     }
@@ -68,7 +64,7 @@ struct EnergyCard: View {
         battery.percent <= 10 ? palette.red : battery.percent <= 20 ? palette.yellow : palette.green
     }
 
-    /// Battery output against the charger's rating, or a laptop's typical 30 W ceiling on battery.
+    /// On battery there's no charger rating; ≈ 30 W is a laptop's typical ceiling.
     private var drawFraction: Double {
         abs(battery.dischargeWatts) / Double(battery.adapterWatts ?? 30)
     }
